@@ -43,14 +43,13 @@ logging.basicConfig(
     ]
 )
 
-# Set UTF-8 encoding for StreamHandler (Windows compatibility)
+# Set UTF-8 encoding for StreamHandler (All platforms)
 import sys
-if sys.platform == 'win32':
-    # Force UTF-8 encoding for console output on Windows
-    if hasattr(sys.stdout, 'reconfigure'):
-        sys.stdout.reconfigure(encoding='utf-8')
-    if hasattr(sys.stderr, 'reconfigure'):
-        sys.stderr.reconfigure(encoding='utf-8')
+# Force UTF-8 encoding for console output on all platforms
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
 
 app = Flask(__name__)
 # Enable CORS for all routes with API security headers support
@@ -252,15 +251,15 @@ def load_data():
 # Save data to files
 def save_data():
     try:
-        with open(CONFIG_FILE, 'w') as f:
-            json.dump(config, f)
+        with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump(config, f, ensure_ascii=False, indent=2)
         flush_logs()  # 使用批量刷新函数
-        with open(QUEUE_FILE, 'w') as f:
-            json.dump(queue, f)
-        with open(HISTORY_FILE, 'w') as f:
-            json.dump(purchase_history, f)
-        with open(SERVERS_FILE, 'w') as f:
-            json.dump(server_plans, f)
+        with open(QUEUE_FILE, 'w', encoding='utf-8') as f:
+            json.dump(queue, f, ensure_ascii=False, indent=2)
+        with open(HISTORY_FILE, 'w', encoding='utf-8') as f:
+            json.dump(purchase_history, f, ensure_ascii=False, indent=2)
+        with open(SERVERS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(server_plans, f, ensure_ascii=False, indent=2)
         logging.info("Data saved to files")
     except Exception as e:
         logging.error(f"保存数据时出错: {str(e)}")
@@ -275,8 +274,8 @@ def save_data():
 # 尝试保存单个文件
 def try_save_file(filename, data):
     try:
-        with open(filename, 'w') as f:
-            json.dump(data, f)
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
         print(f"成功保存 {filename}")
     except Exception as e:
         print(f"保存 {filename} 时出错: {str(e)}")
@@ -329,8 +328,8 @@ def add_log(level, message, source="system"):
     
     if should_write:
         try:
-            with open(LOGS_FILE, 'w') as f:
-                json.dump(logs, f)
+            with open(LOGS_FILE, 'w', encoding='utf-8') as f:
+                json.dump(logs, f, ensure_ascii=False, indent=2)
             log_write_counter = 0
         except Exception as e:
             logging.error(f"写入日志文件失败: {str(e)}")
@@ -347,8 +346,8 @@ def add_log(level, message, source="system"):
 def flush_logs():
     global logs, log_write_counter
     try:
-        with open(LOGS_FILE, 'w') as f:
-            json.dump(logs, f)
+        with open(LOGS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(logs, f, ensure_ascii=False, indent=2)
         log_write_counter = 0
         logging.info("日志已强制刷新到文件")
     except Exception as e:
@@ -1076,8 +1075,8 @@ def load_server_list():
         try:
             # 尝试获取并保存原始目录响应
             catalog = client.get(f'/order/catalog/public/eco?ovhSubsidiary={config["zone"]}')
-            with open(os.path.join(CACHE_DIR, "ovh_catalog_raw.json"), "w") as f:
-                json.dump(catalog, f, indent=2)
+            with open(os.path.join(CACHE_DIR, "ovh_catalog_raw.json"), "w", encoding='utf-8') as f:
+                json.dump(catalog, f, ensure_ascii=False, indent=2)
             add_log("INFO", "已保存完整的API原始响应")
         except Exception as e:
             add_log("WARNING", f"保存API原始响应时出错: {str(e)}")
@@ -1187,13 +1186,13 @@ def load_server_list():
                 os.makedirs(server_data_dir, exist_ok=True)
                 
                 # 保存详细的plan数据
-                with open(os.path.join(server_data_dir, "plan_data.json"), "w") as f:
-                    json.dump(plan, f, indent=2)
+                with open(os.path.join(server_data_dir, "plan_data.json"), "w", encoding='utf-8') as f:
+                    json.dump(plan, f, ensure_ascii=False, indent=2)
                 
                 # 保存addonFamilies数据，如果存在
                 if plan.get("addonFamilies") and isinstance(plan.get("addonFamilies"), list):
-                    with open(os.path.join(server_data_dir, "addonFamilies.json"), "w") as f:
-                        json.dump(plan.get("addonFamilies"), f, indent=2)
+                    with open(os.path.join(server_data_dir, "addonFamilies.json"), "w", encoding='utf-8') as f:
+                        json.dump(plan.get("addonFamilies"), f, ensure_ascii=False, indent=2)
                 
                 add_log("INFO", f"已保存服务器{plan_code}的详细数据用于调试")
             except Exception as e:
@@ -1249,8 +1248,8 @@ def load_server_list():
                     # 保存原始数据以便分析
                     try:
                         debug_file = os.path.join(CACHE_DIR, f"sysle_server_{plan_code}.json")
-                        with open(debug_file, "w") as f:
-                            json.dump(plan, f, indent=2)
+                        with open(debug_file, "w", encoding='utf-8') as f:
+                            json.dump(plan, f, ensure_ascii=False, indent=2)
                         add_log("INFO", f"已保存SYSLE服务器{plan_code}的原始数据到cache目录")
                     except Exception as e:
                         add_log("WARNING", f"保存SYSLE服务器数据时出错: {str(e)}")
@@ -1306,8 +1305,8 @@ def load_server_list():
                     # 保存原始数据以便分析
                     try:
                         debug_file = os.path.join(CACHE_DIR, f"sk_server_{plan_code}.json")
-                        with open(debug_file, "w") as f:
-                            json.dump(plan, f, indent=2)
+                        with open(debug_file, "w", encoding='utf-8') as f:
+                            json.dump(plan, f, ensure_ascii=False, indent=2)
                         add_log("INFO", f"已保存SK服务器{plan_code}的原始数据到cache目录")
                     except Exception as e:
                         add_log("WARNING", f"保存SK服务器数据时出错: {str(e)}")
@@ -1455,8 +1454,8 @@ def load_server_list():
                         # 尝试保存完整的addonFamilies数据用于更深入分析
                         try:
                             debug_file = os.path.join(CACHE_DIR, f"addonFamilies_{plan_code}.json")
-                            with open(debug_file, "w") as f:
-                                json.dump(plan.get("addonFamilies"), f, indent=2)
+                            with open(debug_file, "w", encoding='utf-8') as f:
+                                json.dump(plan.get("addonFamilies"), f, ensure_ascii=False, indent=2)
                             add_log("INFO", f"已保存服务器 {plan_code} 的addonFamilies数据到cache目录")
                         except Exception as e:
                             add_log("WARNING", f"保存addonFamilies数据时出错: {str(e)}")
@@ -1483,8 +1482,8 @@ def load_server_list():
                             
                             if bandwidth_options:
                                 debug_file = os.path.join(CACHE_DIR, f"bandwidth_options_{plan_code}.json")
-                                with open(debug_file, "w") as f:
-                                    json.dump(bandwidth_options, f, indent=2)
+                                with open(debug_file, "w", encoding='utf-8') as f:
+                                    json.dump(bandwidth_options, f, ensure_ascii=False, indent=2)
                                 add_log("INFO", f"已保存{plan_code}的带宽选项到cache目录")
                         except Exception as e:
                             add_log("WARNING", f"保存带宽选项时出错: {str(e)}")
@@ -2277,8 +2276,8 @@ def clear_all_queue():
     
     # 强制再次确认文件已写入
     try:
-        with open(QUEUE_FILE, 'w') as f:
-            json.dump([], f)
+        with open(QUEUE_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f, ensure_ascii=False, indent=2)
         add_log("INFO", f"强制清空队列文件: {QUEUE_FILE}")
     except Exception as e:
         add_log("ERROR", f"清空队列文件时出错: {str(e)}")
@@ -2689,32 +2688,32 @@ def clear_cache():
 def ensure_files_exist():
     # 检查并创建日志文件
     if not os.path.exists(LOGS_FILE):
-        with open(LOGS_FILE, 'w') as f:
+        with open(LOGS_FILE, 'w', encoding='utf-8') as f:
             f.write('[]')
         print(f"已创建空的 {LOGS_FILE} 文件")
     
     # 检查并创建队列文件
     if not os.path.exists(QUEUE_FILE):
-        with open(QUEUE_FILE, 'w') as f:
+        with open(QUEUE_FILE, 'w', encoding='utf-8') as f:
             f.write('[]')
         print(f"已创建空的 {QUEUE_FILE} 文件")
     
     # 检查并创建历史记录文件
     if not os.path.exists(HISTORY_FILE):
-        with open(HISTORY_FILE, 'w') as f:
+        with open(HISTORY_FILE, 'w', encoding='utf-8') as f:
             f.write('[]')
         print(f"已创建空的 {HISTORY_FILE} 文件")
     
     # 检查并创建服务器信息文件
     if not os.path.exists(SERVERS_FILE):
-        with open(SERVERS_FILE, 'w') as f:
+        with open(SERVERS_FILE, 'w', encoding='utf-8') as f:
             f.write('[]')
         print(f"已创建空的 {SERVERS_FILE} 文件")
     
     # 检查并创建配置文件
     if not os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, 'w') as f:
-            json.dump(config, f)
+        with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump(config, f, ensure_ascii=False, indent=2)
         print(f"已创建默认 {CONFIG_FILE} 文件")
 
 # ==================== 配置绑定狙击系统 ====================
