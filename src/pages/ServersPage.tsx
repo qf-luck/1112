@@ -1559,8 +1559,8 @@ const ServersPage = () => {
               <ArrowRightLeft size={11} className="mr-1 text-cyber-accent" />
               <span className="text-[11px] font-medium">默认配置</span>
             </div>
-            <div className="bg-cyber-grid/5 p-1.5">
-              <div className="grid grid-cols-2 gap-1">
+            <div className="bg-cyber-grid/5 p-2.5">
+              <div className="grid grid-cols-2 gap-2.5">
                 {filteredDefaultOptions.map(option => {
                   // 确定此选项属于哪个组
                   let groupName = "其他";
