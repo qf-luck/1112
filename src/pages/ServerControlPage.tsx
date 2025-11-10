@@ -2048,7 +2048,7 @@ const ServerControlPage: React.FC = () => {
   }, [mrtgPeriod]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
         {/* 页面标题 */}
         <div className="flex items-center justify-between mb-6">
@@ -2122,7 +2122,7 @@ const ServerControlPage: React.FC = () => {
 
             {/* 选中服务器的详细信息 */}
             {selectedServer && (
-              <>
+              <div className="space-y-8">
               <div className="cyber-card">
                 <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-cyber-text mb-3 sm:mb-4`}>服务器信息</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm mb-4 sm:mb-6">
@@ -2893,7 +2893,7 @@ const ServerControlPage: React.FC = () => {
                   </div>
                 )}
               </div>
-              </>
+              </div>
             )}
           </>
         )}
